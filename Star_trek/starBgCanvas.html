@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+
+
+    <style>
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            position: absolute;
+            left: -1%;
+            top: -10%;
+            margin: 0;
+
+        }
+
+        #canvas {
+            background-color: #29383d
+        }
+    </style>
+</head>
+
+<body>
+    <div style="display: none;">
+        <img id="rocketIcon1" src="./img/rocket/rocket1.svg" alt="">
+        <img id="rocketIcon2" src="./img/rocket/rocket2.svg" alt="">
+        <img id="rocketIcon3" src="./img/rocket/rocket3.svg" alt="">
+        <img id="rocketIcon4" src="./img/rocket/rocket4.svg" alt="">
+        <img id="rocketIcon5" src="./img/rocket/rocket5.svg" alt="">
+        <img id="spaceRobot" src="./img/rocket/spaceRobot.svg" alt="">
+        <img id="astronaut" src="./img/rocket/astronaut.svg" alt="">
+    </div>
+
+
+    <canvas id="canvas"></canvas>
+
+
+
+    <script>
+
+        $(function () {
+
+            // var hueN = 195;
+            // var satN = 20;
+            // var lightN =20;
+
+            //     // setInterval(() => {
+            //     setInterval(() => {
+            //         $("#canvas").css("background-color", `hsl(${hueN}, ${satN}%, ${lightN}%)`);
+            //         // hueN += 10;
+            //     }, 500)
+            // //     satN += 10;
+            // // }, 500 * 6);
+
+
+
+            canvas = document.getElementById("canvas");
+            context = canvas.getContext("2d");
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight*1.1;
+            // console.log(canvas.width, canvas.height)
+
+
+            // star defination
+            var starItem = { x: 10, y: 10, r: 10, opa: 0.8 };
+            var starItemList = [];
+            var tempStar = {};
+
+
+            //Gain star(high probility to get small star)
+            function gainStar(count = 1500 * window.innerHeight / 722) {
+                starItemList = [];
+
+                for (var i = 0; i < count; i++) {
+                    var randomNum = Math.floor(Math.random() * 30) + 0;
+                    tempStar = {}
+                    tempStar.x = Math.random() * canvas.width;
+                    tempStar.y = Math.random() * canvas.height;
+                    tempStar.r = !randomNum ? (Math.random() * 6) : (Math.random() * 1);
+                    tempStar.opa = 0.8;
+                    starItemList.push(tempStar)
+                }
+                starItemListBak = starItemList;
+                starItemListClear = starItemList;
+            }
+
+            //Star with different opacity at random when r is larger than 3 in period
+            setInterval(() => {
+                starItemList.forEach(e => {
+                    e.opa = (e.r <= 3) ? e.opa : (Math.random() + 0.2)
+                })
+            }, 1800);
+
+
+            // draw star
+            function drawStar(item) {
+                context.beginPath();
+                context.arc(item.x, item.y, item.r, 0, Math.PI * 2, true);
+                context.fillStyle = 'rgba(255, 255, 255,' + item.opa + ')'
+                context.fill();
+
+            }
+
+            // astronaut defination
+            var astronaut = { x: 1000, y: 600, dx: 2, dy: 2, theta: 3, content: document.getElementById("spaceRobot") };
+            var astronautList = [];
+            var tempAstront;
+
+            var arrAastro = [
+                document.getElementById("spaceRobot"),
+                document.getElementById("astronaut")
+            ]
+          
+            // gain astronaut
+            setInterval(() => {
+                if ((Math.floor(Math.random() * 3)) == 0) {
+                    tempAstront = {};
+                    tempAstront.x = Math.random() * canvas.width
+                    tempAstront.y = Math.random() * canvas.height + 200
+                    tempAstront.dx = (Math.random())
+                    tempAstront.dy = (Math.random())
+                    tempAstront.theta = (Math.random() * 3.14)
+                    tempAstront.content = arrAastro[Math.floor(Math.random() * 2)]
+                    astronautList.push(tempAstront)
+                }
+
+            }, 1000);
+            
+            // delete astronaut
+            setInterval(() => {
+                if (astronautList.length > 1) {
+                    astronautList.shift()
+                }
+            }, 4000)
+
+            function drawAstronaut(astronaut) {
+                context.drawImage(astronaut.content, astronaut.x, astronaut.y, 30, 30);
+                context.fill();
+            }
+
+            // rocket part
+            var rocket = { x: 122, y: 122, dx: 3, dy: -3, content: document.getElementById("rocketIcon1") }
+            var rocketList = []
+            rocketList.push(rocket)
+
+            var arr = [
+                document.getElementById("rocketIcon1"),
+                document.getElementById("rocketIcon2"),
+                document.getElementById("rocketIcon3"),
+                document.getElementById("rocketIcon4"),
+                document.getElementById("rocketIcon5")
+            ]
+
+            setInterval(() => {
+                if ((Math.floor(Math.random() * 5)) == 0) {
+                    newRocket = {};
+                    newRocket.x = Math.random() * canvas.width
+                    newRocket.y = Math.random() * canvas.height + 200
+                    newRocket.dx = 3
+                    newRocket.dy = -3
+                    newRocket.content = arr[Math.floor(Math.random() * 5)]
+                    rocketList.push(newRocket)
+                }
+                console.log(rocketList)
+                if (rocketList.length > 1) {
+
+
+                    for (var i = 0; i < rocketList.length; i++) {
+                        if ((rocketList[i].x < 0) || (rocketList[i].y) < 0) {
+                            rocketList.splice(i, 1)
+                        }
+                    }
+                }
+                console.log(rocketList)
+            }, 1000);
+
+
+
+            function drawRocket(rocket) {
+                context.drawImage(rocket.content, rocket.x, rocket.y, 50, 50);
+                context.fill();
+            }
+
+
+
+            //gain star
+            gainStar();
+            function cavasStartUp() {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+
+
+                starItemList.forEach(item => {
+                    drawStar(item)
+                })
+
+                rocketList.forEach(rocket => {
+                    rocket.x += rocket.dx
+                    rocket.y += rocket.dy
+                    drawRocket(rocket)
+
+
+                })
+
+
+                astronautList.forEach(astronaut => {
+                    astronaut.theta += 0.2
+                    astronaut.x += astronaut.dx * (Math.sin(astronaut.theta))
+                    astronaut.y += astronaut.dy * (Math.sin(astronaut.theta+0.1))
+                    drawAstronaut(astronaut)
+
+
+                })
+
+
+
+            }
+
+            // Run Star Cavas
+            setInterval(() => {
+                cavasStartUp()
+            }, 100);
+        })
+
+
+
+    </script>
+</body>
+
+</html>
